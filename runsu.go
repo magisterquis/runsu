@@ -117,13 +117,8 @@ Options:
 	if err := s.RequestPty("vt100", 0, 0, nil); nil != err {
 		log.Fatalf("Error requesty PTY: %v", err)
 	}
-	if err := s.Shell(); nil != err {
-		log.Fatalf("Error requesting shell: %v", err)
-	}
-
-	/* Try to su */
-	if _, err := fmt.Fprintf(ip, "w && su\n"); nil != err {
-		log.Fatalf("Error sending su: %v", err)
+	if err := s.Start("su"); nil != err {
+		log.Fatalf("Error starting su: %v", err)
 	}
 
 	/* Wait for a password prompt */
@@ -154,7 +149,7 @@ Options:
 	}
 
 	/* Try to auth as root */
-	if _, err := fmt.Fprintf(ip, "%s\r\n\r\n", *rootPass); nil != err {
+	if _, err := fmt.Fprintf(ip, "%s\n", *rootPass); nil != err {
 		log.Fatalf("Error sending root password: %v", err)
 	}
 
@@ -177,7 +172,7 @@ Options:
 	/* Try to exit the shell */
 	if _, err := fmt.Fprintf(
 		ip,
-		"\n\nexit\nexit\nexit\n\x04\n\x04\n\x04",
+		"\nexit\n",
 	); nil != err {
 		log.Fatalf("Error sending EOTs to target: %v", err)
 	}
